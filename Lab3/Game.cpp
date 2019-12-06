@@ -1,13 +1,13 @@
 /// <summary>
-/// @author Peter Lowe
+/// name:Rachael McDdonald
 /// @date May 2019
-///
-/// you need to change the above lines or lose marks
-/// project comment in main.cpp
-/// </summary>
+/// program: main code for astroid game
+
 
 #include "Game.h"
 #include <iostream>
+#include "MyVector2.h"
+
 
 
 
@@ -21,26 +21,18 @@ Game::Game() :
 	m_window{ sf::VideoMode{ 800U, 600U, 32U }, "SFML Game" },
 	m_exitGame{false} //when true game will exit
 {
-	setupFontAndText(); // load font 
+	//setupFontAndText(); // load font 
 	setupSprite(); // load texture
 }
 
-/// <summary>
-/// default destructor we didn't dynamically allocate anything
-/// so we don't need to free it, but mthod needs to be here
-/// </summary>
+///
 Game::~Game()
 {
 }
 
 
-/// <summary>
-/// main game loop
-/// update 60 times per second,
-/// process update as often as possible and at least 60 times per second
-/// draw as often as possible but only updates are on time
-/// if updates run slow then don't render frames
-/// </summary>
+
+/// loop for game
 void Game::run()
 {	
 	sf::Clock clock;
@@ -60,11 +52,7 @@ void Game::run()
 		render(); // as many as possible
 	}
 }
-/// <summary>
-/// handle user and system events/ input
-/// get key presses/ mouse moves etc. from OS
-/// and user :: Don't do game update here
-/// </summary>
+/// process main events
 void Game::processEvents()
 {
 	sf::Event newEvent;
@@ -82,10 +70,7 @@ void Game::processEvents()
 }
 
 
-/// <summary>
-/// deal with key presses from the user
-/// </summary>
-/// <param name="t_event">key press event</param>
+///what happens when keys are pressed
 void Game::processKeys(sf::Event t_event)
 {
 	if (sf::Keyboard::Escape == t_event.key.code)
@@ -94,12 +79,11 @@ void Game::processKeys(sf::Event t_event)
 	}
 }
 
-/// <summary>
-/// Update the game world
-/// </summary>
-/// <param name="t_deltaTime">time interval per frame</param>
+/// update for game
 void Game::update(sf::Time t_deltaTime)
 {
+	drawLine();
+
 	if (m_exitGame)
 	{
 		m_window.close();
@@ -107,46 +91,86 @@ void Game::update(sf::Time t_deltaTime)
 }
 
 /// <summary>
-/// draw the frame and then switch buffers
+/// drawing for square and rectangle
 /// </summary>
 void Game::render()
 {
 	m_window.clear(sf::Color::White);
-	m_window.draw(m_welcomeMessage);
-	m_window.draw(m_logoSprite);
+	m_window.draw(m_bernard);
+	m_window.draw(m_patricia);
+	m_window.draw(m_laser);
 	m_window.display();
 }
 
-/// <summary>
-/// load the font and setup the text message for screen
-/// </summary>
-void Game::setupFontAndText()
+void Game::ProcessMouseReleaseEvents(sf::Event t_mouseEvent)
 {
-	if (!m_ArialBlackfont.loadFromFile("ASSETS\\FONTS\\ariblk.ttf"))
+	m_laser.clear();
+
+	if (sf::Mouse::Left == t_mouseEvent.mouseButton.button)
 	{
-		std::cout << "problem loading arial black font" << std::endl;
+
+
+		mouseClick = sf::Vector2f{ static_cast<float>(t_mouseEvent.mouseButton.x),static_cast<float>(t_mouseEvent.mouseButton.y) };
+		lineEnd = mouseClick;
+		float distanceValue = 0.0f;
+		velocityLine();
+		m_drawLine = true;
+
 	}
-	m_welcomeMessage.setFont(m_ArialBlackfont);
-	m_welcomeMessage.setString("SFML Game");
-	m_welcomeMessage.setStyle(sf::Text::Underlined | sf::Text::Italic | sf::Text::Bold);
-	m_welcomeMessage.setPosition(40.0f, 40.0f);
-	m_welcomeMessage.setCharacterSize(80U);
-	m_welcomeMessage.setOutlineColor(sf::Color::Red);
-	m_welcomeMessage.setFillColor(sf::Color::Black);
-	m_welcomeMessage.setOutlineThickness(3.0f);
+	
 
 }
 
-/// <summary>
-/// load the texture and setup the sprite for the logo
-/// </summary>
+
+
 void Game::setupSprite()
 {
 	if (!m_logoTexture.loadFromFile("ASSETS\\IMAGES\\SFML-LOGO.png"))
 	{
-		// simple error message if previous call fails
-		std::cout << "problem loading logo" << std::endl;
+	
 	}
-	m_logoSprite.setTexture(m_logoTexture);
-	m_logoSprite.setPosition(300.0f, 180.0f);
+
+
+	m_bernard.setPosition(0.0f, 575.0f); //location for sqaure
+	m_bernard.setFillColor(sf::Color::Green);
+	m_bernard.setSize(sf::Vector2f(800.0f, 50.0f));
+
+	m_patricia.setPosition(375.0f, 525.0f); // location for rectangle
+	m_patricia.setFillColor(sf::Color::Red);
+	m_patricia.setSize(sf::Vector2f(50.0f, 50.0f));
+
 }
+
+	void Game::velocityLine() //calulations for velocity
+
+	{
+		vectorUnit = vectorUnitVector(lineEnd - lineStart);
+		velocity = vectorUnit * 3.0f;
+		lineEndCurrent = lineStart;
+
+	}
+
+	void Game::drawLine() //fo the line
+	{
+
+		if (m_drawLine == true)
+		{
+			m_laser.clear();
+
+			sf::Vertex lineStartVertex(lineStart, sf::Color::Red);
+			m_laser.append(lineStartVertex);
+
+			lineEndCurrent += velocity;
+			sf::Vertex lineEnd( lineEndCurrent, sf::Color::Red);
+			m_laser.append(lineEnd);
+
+		}
+
+		if (vectorLength(lineEndCurrent - lineEnd) < 4.0f)
+		{
+			m_drawLine = false;
+			m_laser.clear();
+
+		}
+	}
+	
